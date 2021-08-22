@@ -1,15 +1,16 @@
 // Based on https://codepen.io/al-ro/pen/jJJygQ by al-ro, but rewritten in react-three-fiber
 import { useLoader } from "@react-three/fiber"
-import React, { useCallback, useEffect, useRef, useState } from "react"
-import { combineLatest, interval } from "rxjs"
-import { map, sampleTime } from "rxjs/operators"
+import React, { useCallback, useEffect, useRef } from "react"
+import { interval } from "rxjs"
+import { map } from "rxjs/operators"
 import * as THREE from "three"
 import "./materials/ShinyMaterial"
 import bg from "./resources/seamless8.png"
-import { interpolator, sequence, useAnimation, useObservable } from "./useAnimation/useAnimation"
+import { useAnimation } from "./useAnimation/three"
+import { interpolator, sequence, useObservable } from "./useAnimation/useAnimation"
 import KEYS from "./useInput/keys"
 import { useKeyDown, useKeyHeld } from "./useInput/keyStream"
-import { mousemovenormalised$, useMouseMoveNormalised } from "./useInput/mouseStream"
+import { useMouseMoveNormalised } from "./useInput/mouseStream"
 
 export default function Wall(props: any) {
   const material = useRef()
@@ -27,15 +28,10 @@ export default function Wall(props: any) {
   })
 
   const xscale = useObservable(1)
-  useAnimation(
-    xscale,
-    anim,
-    500,
-    useCallback((v) => {
-      const m = mesh.current as any
-      m.scale.z = v
-    }, []),
-  )
+  useAnimation(xscale, anim, 500, (v) => {
+    const m = mesh.current as any
+    m.scale.z = v
+  })
 
   const yscale = useObservable(1)
   useAnimation(

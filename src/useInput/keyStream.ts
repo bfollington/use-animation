@@ -2,9 +2,9 @@ import { useEffect } from "react"
 import { EMPTY, fromEvent, interval, merge } from "rxjs"
 import { distinctUntilChanged, filter, groupBy, map, mergeAll, switchMap } from "rxjs/operators"
 
-const keydown$ = fromEvent<KeyboardEvent>(document, "keydown")
-const keyup$ = fromEvent<KeyboardEvent>(document, "keyup")
-const key$ = merge(keydown$, keyup$).pipe(
+export const keydown$ = fromEvent<KeyboardEvent>(document, "keydown")
+export const keyup$ = fromEvent<KeyboardEvent>(document, "keyup")
+export const key$ = merge(keydown$, keyup$).pipe(
   groupBy((e: KeyboardEvent) => e.keyCode),
   map((group: any) =>
     group.pipe(

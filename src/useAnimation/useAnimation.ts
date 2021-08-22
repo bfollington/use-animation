@@ -2,7 +2,7 @@ import { EaseFn, default as easing } from "./ease"
 import { concat, merge, Observable, of, Subject } from "rxjs"
 import { delay, flatMap, map, share, switchMap, take, takeUntil, takeWhile, tap } from "rxjs/operators"
 import * as React from "react"
-import { useFrameStream } from "./frameStream"
+import { frames$, useFrameStream } from "./frameStream"
 
 export function interpolator(from: number, to: number, easeFn: EaseFn) {
   const e: (t: number) => number = easing[easeFn]
@@ -19,7 +19,7 @@ export function mapInterpolator(i: Interpolator, from: number, to: number) {
   }
 }
 
-type Interpolator = ReturnType<typeof interpolator>
+export type Interpolator = ReturnType<typeof interpolator>
 
 export function sequence(a: Interpolator, b: Interpolator) {
   const sample = (t: number) => {
@@ -47,13 +47,9 @@ function sequenceN(...i: Interpolator[]) {
   }
 }
 
-const a = interpolator(0, 1, "easeInOutCubic")
-const b = interpolator(1, 0, "easeInOutCubic")
-const x = sequence(a, b)
+export type Animatable = number
 
-type Animatable = number
-
-type ObservableSource = {
+export type ObservableSource = {
   changes: Subject<Animatable>
   value: () => Animatable
   swap: (swapFn: (v: Animatable) => Animatable) => void
@@ -106,8 +102,6 @@ export const useObservableState = (v: Animatable): ObservableSource => {
 export const useAnimation = (source: ObservableSource, interpolator: Interpolator, duration: number, sink: (v: Animatable) => void) => {
   const underlying = React.useRef(source.value())
 
-  const frames$ = useFrameStream()
-
   React.useEffect(() => {
     sink(underlying.current)
 
@@ -117,7 +111,7 @@ export const useAnimation = (source: ObservableSource, interpolator: Interpolato
           const baseTime = Date.now()
 
           return concat(
-            frames$.current.pipe(
+            frames$.pipe(
               share(),
               map((dt) => (Date.now() - baseTime) / duration),
               takeWhile((t) => t < 1),
@@ -134,5 +128,5 @@ export const useAnimation = (source: ObservableSource, interpolator: Interpolato
     return () => {
       sub.unsubscribe()
     }
-  }, [duration, source, sink, interpolator, frames$])
+  }, [duration, source, sink, interpolator])
 }
