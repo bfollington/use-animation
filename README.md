@@ -1,6 +1,6 @@
 # use-animation
 
-a react hook for expressive animations, powered by rxjs
+a react hook for reactive animations, powered by rxjs
 
 Usage: 
 
