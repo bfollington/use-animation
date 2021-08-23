@@ -61,13 +61,13 @@ export default function Effects() {
       /> */}
 
       {/* <shaderPass attachArray="passes" args={[TiltShiftShader]} scene={scene} camera={camera} /> */}
-      <shaderPass ref={noisePass} attachArray="passes" args={[NoiseShader]} scene={scene} camera={camera} />
-      <shaderPass ref={spacePass} attachArray="passes" args={[SpaceShader]} scene={scene} camera={camera} />
+      {/* <shaderPass ref={noisePass} attachArray="passes" args={[NoiseShader]} scene={scene} camera={camera} /> */}
+      {/* <shaderPass ref={spacePass} attachArray="passes" args={[SpaceShader]} scene={scene} camera={camera} /> */}
       {/* <shaderPass attachArray="passes" args={[RGBShiftShader]} scene={scene} camera={camera} /> */}
-      <unrealBloomPass attachArray="passes" args={[aspect, 0.4, 0.5, 0]} />
+      {/* <unrealBloomPass attachArray="passes" args={[aspect, 0.4, 0.5, 0]} /> */}
       <shaderPass ref={ditherPass} attachArray="passes" args={[DitherShader]} scene={scene} camera={camera} />
 
-      <shaderPass attachArray="passes" args={[CrtShader]} scene={scene} camera={camera} />
+      {/* <shaderPass attachArray="passes" args={[CrtShader]} scene={scene} camera={camera} /> */}
     </effectComposer>
   )
 }
