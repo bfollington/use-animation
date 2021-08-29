@@ -3,6 +3,8 @@ import { useMemo, useRef } from "react"
 import { Observable, of, Subject } from "rxjs"
 import { expand, filter, map, share } from "rxjs/operators"
 
+// Yoinked from https://www.learnrxjs.io/learn-rxjs/recipes/gameloop
+
 export interface IFrameData {
   frameStartTime: number
   deltaTime: number
