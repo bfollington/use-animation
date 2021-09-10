@@ -52,3 +52,44 @@ export function useKeyHeld(key: number, intervalMs: number, sink: () => void) {
     return () => s.unsubscribe()
   }, [key, intervalMs, sink])
 }
+
+type InputMap = { [id: string]: number[] }
+
+function useInputEvents<T extends InputMap>(eventType: string, inputMap: T, key: keyof T, sink: () => void) {
+  const keys = inputMap[key]
+
+  useEffect(() => {
+    const s = key$
+      .pipe(filter((ev) => keys.includes((ev as KeyboardEvent).keyCode) && (ev as KeyboardEvent).type === eventType && !(ev as KeyboardEvent).repeat))
+      .subscribe(sink)
+    return () => s.unsubscribe()
+  }, [keys, eventType, sink])
+}
+
+export function useActionPressed<T extends InputMap>(inputMap: T, key: keyof T, sink: () => void) {
+  useInputEvents("keydown", inputMap, key, sink)
+}
+export function useActionReleased<T extends InputMap>(inputMap: T, key: keyof T, sink: () => void) {
+  useInputEvents("keyup", inputMap, key, sink)
+}
+
+export function useActionHeld<T extends InputMap>(inputMap: T, key: keyof T, intervalMs: number, sink: () => void) {
+  const keys = inputMap[key]
+
+  useEffect(() => {
+    const s = key$
+      .pipe(
+        filter((ev) => keys.includes((ev as KeyboardEvent).keyCode)),
+        switchMap((ev) => {
+          const kev = ev as KeyboardEvent
+          if (kev.type === "keydown") {
+            return interval(intervalMs)
+          } else {
+            return EMPTY
+          }
+        }),
+      )
+      .subscribe(sink)
+    return () => s.unsubscribe()
+  }, [keys, intervalMs, sink])
+}

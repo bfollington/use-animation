@@ -1,6 +1,6 @@
 import React from "react"
-import { fromEvent, identity, noop } from "rxjs"
-import { map, pairwise, sampleTime, share, throttle } from "rxjs/operators"
+import { fromEvent, identity } from "rxjs"
+import { map, pairwise, sampleTime, share } from "rxjs/operators"
 
 export const mousemove$ = fromEvent<MouseEvent>(document, "mousemove").pipe(
   map((ev: MouseEvent) => [ev.clientX, ev.clientY]),

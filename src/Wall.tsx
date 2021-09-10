@@ -1,6 +1,6 @@
-// Based on https://codepen.io/al-ro/pen/jJJygQ by al-ro, but rewritten in react-three-fiber
+import { Html } from "@react-three/drei"
 import { useLoader } from "@react-three/fiber"
-import React, { useCallback, useEffect, useRef } from "react"
+import React, { MutableRefObject, useEffect, useRef } from "react"
 import { interval } from "rxjs"
 import { map } from "rxjs/operators"
 import * as THREE from "three"
@@ -9,8 +9,24 @@ import bg from "./resources/seamless8.png"
 import { useAnimation } from "./useAnimation/three"
 import { interpolator, sequence, useObservable } from "./useAnimation/useAnimation"
 import KEYS from "./useInput/keys"
-import { useKeyDown, useKeyHeld } from "./useInput/keyStream"
+import { useActionHeld, useActionPressed, useActionReleased } from "./useInput/keyStream"
 import { useMouseMoveNormalised } from "./useInput/mouseStream"
+
+const inputMap = {
+  left: [KEYS.left_arrow, KEYS.a],
+  right: [KEYS.right_arrow, KEYS.d],
+  up: [KEYS.up_arrow, KEYS.w],
+  down: [KEYS.down_arrow, KEYS.s],
+  count: [KEYS.space],
+}
+
+function modify<T>(val: MutableRefObject<T> | undefined, sink: (v: T) => void) {
+  if (val?.current) {
+    sink(val.current)
+  }
+}
+
+const anim = sequence(interpolator(0, 1.2, "easeOutCubic"), interpolator(1.2, 1, "easeOutCubic"))
 
 export default function Wall(props: any) {
   const material = useRef()
@@ -18,46 +34,49 @@ export default function Wall(props: any) {
   const [texture] = useLoader(THREE.TextureLoader, [bg])
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping
 
-  const anim = sequence(interpolator(0, 1.2, "easeOutCubic"), interpolator(1.2, 1, "easeOutCubic"))
+  const [animationInterval, setAnimationInterval] = React.useState(500)
+  const [counter, setCounter] = React.useState(0)
 
   const angle = useObservable(0)
   useAnimation(angle, interpolator(0, 1, "easeOutQuad"), 250, (v) => {
-    const m = mesh.current as any
-    m.rotation.x = v
-    m.rotation.y = v
+    modify<any>(mesh, (m) => {
+      m.rotation.x = v
+      m.rotation.y = v
+    })
   })
 
   const xscale = useObservable(1)
   useAnimation(xscale, anim, 500, (v) => {
-    const m = mesh.current as any
-    m.scale.z = v
+    modify<any>(mesh, (m) => {
+      m.scale.z = v
+    })
   })
 
   const yscale = useObservable(1)
-  useAnimation(
-    yscale,
-    anim,
-    500,
-    useCallback((v) => {
-      const m = mesh.current as any
+  useAnimation(yscale, anim, 500, (v) => {
+    modify<any>(mesh, (m) => {
       m.scale.y = v
-    }, []),
-  )
-
-  useKeyDown(KEYS.up_arrow, () => {
-    yscale.swap((s) => s + 0.1)
+    })
   })
 
-  useKeyDown(KEYS.down_arrow, () => {
-    yscale.swap((s) => s - 0.1)
+  useActionPressed(inputMap, "left", () => {
+    setAnimationInterval(animationInterval - 50)
   })
 
-  useKeyHeld(KEYS.left_arrow, 50, () => {
-    angle.swap((s) => s - 0.05)
+  useActionPressed(inputMap, "right", () => {
+    setAnimationInterval(animationInterval + 50)
   })
 
-  useKeyHeld(KEYS.right_arrow, 50, () => {
-    angle.swap((s) => s + 0.05)
+  useActionReleased(inputMap, "up", () => {
+    yscale.swap((s) => s + 0.3)
+  })
+
+  useActionReleased(inputMap, "down", () => {
+    yscale.swap((s) => s - 0.3)
+  })
+
+  useActionHeld(inputMap, "count", 50, () => {
+    setCounter(counter + 1)
   })
 
   useMouseMoveNormalised(([x, y]) => {
@@ -65,25 +84,12 @@ export default function Wall(props: any) {
     xscale.set(x * 4 + 0.5)
   }, 50)
 
-  // useEffect(() => {
-  //   const s = combineLatest([
-  //     mousemovenormalised$.pipe(
-  //       sampleTime(100),
-  //       map(([x]) => Math.PI * 2 * Math.sin(x * Math.PI)),
-  //     ),
-  //     interval(100),
-  //   ])
-  //     .pipe(map(([angle, time]) => angle + time / 5.0))
-  //     .subscribe(angle.set)
-  //   return () => s.unsubscribe()
-  // }, [angle])
-
   useEffect(() => {
-    const s = interval(500)
+    const s = interval(animationInterval)
       .pipe(map((t) => Math.random() * Math.PI * 2))
       .subscribe(angle.set)
     return () => s.unsubscribe()
-  }, [angle])
+  }, [angle, animationInterval])
 
   return (
     <group {...props}>
@@ -94,6 +100,9 @@ export default function Wall(props: any) {
         {/* <shinyMaterial ref={material} noiseTexture={texture} /> */}
         {/* <meshLambertMaterial color="red" /> */}
         <meshPhongMaterial color={props.color || "white"} />
+        <Html>
+          <label>{counter}</label>
+        </Html>
       </mesh>
     </group>
   )
