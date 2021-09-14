@@ -1,5 +1,6 @@
 import { Html } from "@react-three/drei"
 import { useLoader } from "@react-three/fiber"
+import { KEYS, useActionHeld, useActionReleased, useActionPressed, useMouseMoveNormalised } from "@twopm/use-input"
 import React, { MutableRefObject, useEffect, useRef } from "react"
 import { interval } from "rxjs"
 import { map } from "rxjs/operators"
@@ -8,9 +9,6 @@ import "./materials/ShinyMaterial"
 import bg from "./resources/seamless8.png"
 import { useAnimation } from "./useAnimation/three"
 import { interpolator, sequence, useObservable } from "./useAnimation/useAnimation"
-import KEYS from "./useInput/keys"
-import { useActionHeld, useActionPressed, useActionReleased } from "./useInput/keyStream"
-import { useMouseMoveNormalised } from "./useInput/mouseStream"
 
 const inputMap = {
   left: [KEYS.left_arrow, KEYS.a],

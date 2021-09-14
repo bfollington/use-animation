@@ -7,6 +7,7 @@
   "dependencies": {
     "@react-three/drei": "4.1.8",
     "@react-three/fiber": "6.0.14",
+    "@twopm/use-input": "^0.1.0",
     "@types/rx": "4.1.2",
     "framer-motion": "^4.1.17",
     "react": "17.0.2",
